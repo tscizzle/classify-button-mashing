@@ -124,3 +124,6 @@ dmypy.json
 
 # PyCharm IDE
 .idea/
+
+# Personal
+TODO.txt
