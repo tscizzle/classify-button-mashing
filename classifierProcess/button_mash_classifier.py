@@ -2,7 +2,6 @@
 Classify different people's random button mashing
 """
 
-
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -14,7 +13,9 @@ class ButtonMashClassifier:
         :param string[] labels: e.g. ["tyler", "pre"]
         """
         # Features we use are char n-grams of length 1 to 3
-        self.vectorizer = TfidfVectorizer(input="content", analyzer="char", ngram_range=(1, 3))
+        self.vectorizer = TfidfVectorizer(
+            input="content", analyzer="char", ngram_range=(1, 3)
+        )
 
         X = self.vectorizer.fit_transform(button_mashes)
         y = labels
@@ -33,25 +34,3 @@ class ButtonMashClassifier:
         predicted_labels = self.classifier.predict(X)
 
         return predicted_labels
-
-
-def main():
-    pre_inps = open("button_mashes_pre.data").readlines()
-    tyler_inps = open("button_mashes_tyler.data").readlines()
-    all_inps = pre_inps + tyler_inps
-    all_labels = ["pre" for _ in pre_inps] + ["tyler" for _ in tyler_inps]
-
-    bmc = ButtonMashClassifier(all_inps, all_labels)
-
-    """
-    example:
-    ```
-    bmc.predict(["erflkewxq;", "wpfoijcwqodlcwqk"])
-    ```
-    """
-
-    return
-
-
-if __name__ == '__main__':
-    main()

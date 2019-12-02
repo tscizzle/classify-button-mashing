@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 /* Fetching */
 
 export const NICE_SERVER_URL =
@@ -17,9 +15,10 @@ const niceFetchJSON = (...args) => {
   return niceFetch(...args).then(res => res.json());
 };
 
-const niceGET = path => {
-  return niceFetchJSON(path);
-};
+/* not used yet, commenting out to neaten linter output */
+// const niceGET = path => {
+//   return niceFetchJSON(path);
+// };
 
 const getJSONHeaders = () => {
   return {
@@ -38,23 +37,24 @@ const nicePOST = (path, body) => {
 
 /* Transforming */
 
-const dateify = ({ obj, dateFieldPaths }) => {
-  const newObj = _.cloneDeep(obj);
-  _.each(dateFieldPaths, path => {
-    const hasField = _.has(obj, path);
-    if (hasField) {
-      const stringVal = _.get(obj, path);
-      const dateVal = new Date(stringVal);
-      _.set(newObj, path, dateVal);
-    }
-  });
-  return newObj;
-};
+/* not used yet, commenting out to neaten linter output */
+// const dateify = ({ obj, dateFieldPaths }) => {
+//   const newObj = _.cloneDeep(obj);
+//   _.each(dateFieldPaths, path => {
+//     const hasField = _.has(obj, path);
+//     if (hasField) {
+//       const stringVal = _.get(obj, path);
+//       const dateVal = new Date(stringVal);
+//       _.set(newObj, path, dateVal);
+//     }
+//   });
+//   return newObj;
+// };
 
 /* API Calls */
 
-const sendTypedChar = ({ char }) => {
-  return nicePOST('/keyPress', { char });
+const sendTypedChar = ({ char, gameId, personId }) => {
+  return nicePOST('/keyPress', { char, gameId, personId });
 };
 
 const api = {
