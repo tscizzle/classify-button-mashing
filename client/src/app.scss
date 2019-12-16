@@ -10,6 +10,7 @@
 
   .mash-prompt-container {
     display: flex;
+    align-items: center;
     margin: 0 0 100px 0;
 
     .mash-prompt-name-input {
@@ -17,6 +18,12 @@
       margin: 0 10px 0 0;
       text-align: center;
       font-size: 1.15em;
+    }
+
+    .predicted-masher {
+      margin: 0 20px 0 0;
+      font-size: 45px;
+      color: $green;
     }
   }
 

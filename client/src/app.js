@@ -95,20 +95,18 @@ class App extends Component {
     return (
       <div className="app">
         <div className="mash-prompt-container">
-          <div>
-            {!_.isNull(currentPersonId) ? (
-              <input
-                className="mash-prompt-name-input"
-                placeholder="Your name here"
-                value={currentPerson.name}
-                onChange={this.updateName}
-                ref={el => (this.nameInput = el)}
-              />
-            ) : (
-              <div>{predictedMasherName}</div>
-            )}
-            is currently mashing.
-          </div>
+          {!_.isNull(currentPersonId) ? (
+            <input
+              className="mash-prompt-name-input"
+              placeholder="Your name here"
+              value={currentPerson.name}
+              onChange={this.updateName}
+              ref={el => (this.nameInput = el)}
+            />
+          ) : (
+            <div className="predicted-masher">{predictedMasherName}</div>
+          )}
+          is currently mashing.
         </div>
         <input
           className="mash-text"
