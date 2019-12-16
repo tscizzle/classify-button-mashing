@@ -24,7 +24,7 @@ class App extends Component {
         },
       },
       lastChar: '',
-      predictedMasher: '',
+      predictedMasherId: null,
     };
   }
 
@@ -32,27 +32,56 @@ class App extends Component {
   nameInput = null;
 
   render() {
-    const { lastChar, currentPersonId, personOrder, people } = this.state;
-    const currentPerson = people[currentPersonId];
-    const hasEnoughData = this.currentPersonHasEnoughData();
-    const nextMasherButtonClasses = classNames('next-masher-button', {
-      disabled: !hasEnoughData,
-    });
+    const {
+      lastChar,
+      currentPersonId,
+      personOrder,
+      people,
+      predictedMasherId,
+    } = this.state;
+    const predictedMasher = people[predictedMasherId];
+    const predictedMasherName = predictedMasher ? predictedMasher.name : '?';
+    const currentPerson = people[currentPersonId] || {};
+    const currentHasEnoughData = this.personHasEnoughData(currentPerson);
+    const everyoneHasEnoughData = _.every(
+      _.mapValues(people, this.personHasEnoughData)
+    );
+    const currentHasName = Boolean(currentPerson.name);
+    const everyoneHasName = _.every(_.mapValues(people, 'name'));
+    const isMultiplePeople = personOrder.length >= 2;
     const resetButtonClasses = classNames('reset-button', 'buttonish');
-    const personButtonClasses = classNames('person-button', 'buttonish');
-    let mashPromptMessage = '';
+    let mashPromptWarning = '';
     if (currentPerson.charsTyped === 0) {
-      mashPromptMessage = '';
-    } else if (!hasEnoughData) {
-      mashPromptMessage = 'Need more data. Keep mashing!';
-    } else if (!currentPerson.name) {
-      mashPromptMessage = 'Name the current masher.';
+      mashPromptWarning = '';
+    } else if (!currentHasEnoughData) {
+      mashPromptWarning = 'Need more mashing. Keep going!';
+    } else if (!everyoneHasEnoughData) {
+      mashPromptWarning =
+        'Need more mashing from the red people in the sidebar.';
+    } else if (!currentHasName) {
+      mashPromptWarning = 'Name the current masher.';
+    } else if (!everyoneHasName) {
+      mashPromptWarning = 'Name the unnamed people in the sidebar';
     }
-    const mashPromptMessageClasses = classNames('mash-prompt-message', {
-      invisible: !mashPromptMessage,
+    const disableNextStepButtons =
+      Boolean(mashPromptWarning) || !currentHasEnoughData;
+    const nextMasherButtonClasses = classNames('next-masher-button', {
+      disabled: disableNextStepButtons,
+    });
+    const startPredictingButtonClasses = classNames('start-predicting-button', {
+      disabled: disableNextStepButtons,
+    });
+    const mashPromptWarningClasses = classNames('mash-prompt-message', {
+      invisible: !mashPromptWarning,
     });
     const personList = _.map(personOrder, personId => {
-      const { name } = people[personId];
+      const person = people[personId];
+      const { name } = person;
+      const hasEnoughData = this.personHasEnoughData(person);
+      const personButtonClasses = classNames('person-button', 'buttonish', {
+        'current-person': personId === currentPersonId,
+        'person-not-enough-data': !hasEnoughData,
+      });
       return (
         <div
           className={personButtonClasses}
@@ -67,13 +96,17 @@ class App extends Component {
       <div className="app">
         <div className="mash-prompt-container">
           <div>
-            <input
-              className="mash-prompt-name-input"
-              placeholder="Your name here"
-              value={currentPerson.name}
-              onChange={this.updateName}
-              ref={el => (this.nameInput = el)}
-            />
+            {!_.isNull(currentPersonId) ? (
+              <input
+                className="mash-prompt-name-input"
+                placeholder="Your name here"
+                value={currentPerson.name}
+                onChange={this.updateName}
+                ref={el => (this.nameInput = el)}
+              />
+            ) : (
+              <div>{predictedMasherName}</div>
+            )}
             is currently mashing.
           </div>
         </div>
@@ -85,17 +118,29 @@ class App extends Component {
           ref={el => (this.mashInput = el)}
           onChange={() => {}}
         />
-        <div className="next-masher-container">
-          <div
-            className={nextMasherButtonClasses}
-            onClick={this.clickNextMasher}
-          >
-            Next Masher
+        {!_.isNull(this.state.currentPersonId) && (
+          <div className="next-masher-container">
+            <div className="next-masher-buttons-container">
+              <div
+                className={nextMasherButtonClasses}
+                onClick={this.clickNextMasher}
+              >
+                Next Masher
+              </div>
+              {isMultiplePeople && (
+                <div
+                  className={startPredictingButtonClasses}
+                  onClick={this.clickStartPredicting}
+                >
+                  Start Guessing
+                </div>
+              )}
+            </div>
+            <div className={mashPromptWarningClasses}>
+              {mashPromptWarning || 'dummy'}
+            </div>
           </div>
-          <div className={mashPromptMessageClasses}>
-            {mashPromptMessage || 'dummy'}
-          </div>
-        </div>
+        )}
         <div className={resetButtonClasses} onClick={this.reloadPage}>
           Reset
         </div>
@@ -121,40 +166,43 @@ class App extends Component {
       api
         .sendTypedChar({ char, gameId, personId: currentPersonId })
         .then(res => {
-          console.log(res);
           if (res.prediction) {
-            this.setState({ predictedMasher: res.prediction });
+            this.setState({ predictedMasherId: res.prediction });
           }
         });
-      const currentPerson = people[currentPersonId];
-      const newCharsTyped = currentPerson.charsTyped + 1;
-      const newPeople = {
-        ...people,
-        [currentPersonId]: {
-          ...currentPerson,
-          charsTyped: newCharsTyped,
-        },
-      };
-      this.setState({ lastChar: char, people: newPeople });
+      if (!_.isNull(currentPersonId)) {
+        const currentPerson = people[currentPersonId];
+        const newCharsTyped = currentPerson.charsTyped + 1;
+        const newPeople = {
+          ...people,
+          [currentPersonId]: {
+            ...currentPerson,
+            charsTyped: newCharsTyped,
+          },
+        };
+        this.setState({ lastChar: char, people: newPeople });
+      } else {
+        this.setState({ lastChar: char });
+      }
     }
   };
 
   ALLOWED_CHARS = "`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ ";
 
   personHasEnoughData = person => {
+    if (!person.charsTyped) {
+      return false;
+    }
     return person.charsTyped >= 180;
-  };
-
-  currentPersonHasEnoughData = () => {
-    const { currentPersonId, people } = this.state;
-    const currentPerson = people[currentPersonId];
-    return this.personHasEnoughData(currentPerson);
   };
 
   getSetCurrentPersonFunc = personId => {
     return () => {
       this.mashInput.focus();
-      this.setState({ currentPersonId: personId, lastChar: '' });
+      this.setState({
+        currentPersonId: personId,
+        lastChar: '',
+      });
     };
   };
 
@@ -195,6 +243,11 @@ class App extends Component {
       personOrder: [...personOrder, newPersonId],
       lastChar: '',
     });
+  };
+
+  clickStartPredicting = () => {
+    this.mashInput.focus();
+    this.setState({ currentPersonId: null, lastChar: '' });
   };
 
   reloadPage = () => window.location.reload(false);

@@ -63,7 +63,12 @@ def initNewGameAndPerson(gameId, personId):
     """
     with stateLock:
         if gameId not in state["games"]:
-            emptyGame = {"id": gameId, "people": {}}
+            emptyGame = {
+                "id": gameId,
+                "people": {},
+                "button_mash_classifier": None,
+                "unlabeled_mash": "",
+            }
             state["games"][gameId] = emptyGame
         if personId and personId not in state["games"][gameId]["people"]:
             emptyPerson = {"id": personId, "mash": ""}
@@ -103,7 +108,8 @@ def getOrCreateClassifier(gameId):
     with stateLock:
         if not state["games"][gameId].get("button_mash_classifier"):
             allMashes, allLabels = [], []
-            for personId, longMash in state["games"][gameId]["people"].items():
+            for personId, personMashDict in state["games"][gameId]["people"].items():
+                longMash = personMashDict["mash"]
                 # for each person's long string of chars, chunk into shorter strings to train on (may leave off some
                 # chars at the end)
                 numPersonMashes = len(longMash) // MASH_CHUNK_SIZE

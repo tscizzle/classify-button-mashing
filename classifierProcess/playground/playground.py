@@ -1,3 +1,4 @@
+# why is this import broken? put button_mash_classifier.py in here if needed
 from button_mash_classifier import ButtonMashClassifier
 
 
@@ -15,6 +16,7 @@ def main():
     bmc.predict(["erflkewxq;", "wpfoijcwqodlcwqk"])
     ```
     """
+    print("butt")
 
     return
 

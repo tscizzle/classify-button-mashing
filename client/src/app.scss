@@ -13,8 +13,10 @@
     margin: 0 0 100px 0;
 
     .mash-prompt-name-input {
+      width: 160px;
       margin: 0 10px 0 0;
       text-align: center;
+      font-size: 1.15em;
     }
   }
 
@@ -24,22 +26,37 @@
     align-items: center;
     margin: 100px 0 0 0;
 
-    .next-masher-button {
+    .next-masher-buttons-container {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      border: solid 4px $green;
-      border-radius: 8px;
-      font-size: 25px;
-      background-color: $lightGreen;
-      color: $green;
-      cursor: pointer;
 
-      &.disabled {
-        opacity: 0.5;
-        cursor: default;
-        pointer-events: none;
+      .next-masher-button {
+        border: solid 4px $green;
+        background-color: $lightGreen;
+        color: $green;
+      }
+
+      .start-predicting-button {
+        margin: 0 0 0 20px;
+        border: solid 4px $darkOrange;
+        background-color: $lightOrange;
+        color: $darkOrange;
+      }
+
+      .next-masher-button,
+      .start-predicting-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 25px;
+        cursor: pointer;
+
+        &.disabled {
+          opacity: 0.5;
+          cursor: default;
+          pointer-events: none;
+        }
       }
     }
 
@@ -88,6 +105,17 @@
     .person-button {
       display: flex;
       justify-content: flex-end;
+
+      &.current-person {
+        color: $light;
+        font-weight: bold;
+        background-color: $darker;
+        box-shadow: 0px 0px 1px $darkerGray;
+      }
+
+      &.person-not-enough-data {
+        color: $red;
+      }
     }
   }
 }
