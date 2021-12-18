@@ -1,0 +1,15 @@
+- progress bar, or X/180 type of progress indication, so you know how much more you need to mash
+- remove dormant games from state
+  - store game last updated times
+  - in initNewGameAndPerson, also loop through state["games"] and remove any with "lastUpdateDatetime" too long ago
+- consider if the server needs to be the thing that launches the classifierProcess, when hosted in production
+  - perhaps not, if the production environment is some multi-container thing like kubernetes or a Docker thing with a docker-compose and that config is what specifies the multiple processes to begin
+- classification experimentation
+  - see if can get confidence for the current guess
+  - try neural net instead of a LinearSVC where I have to decide the features (rn I use tf-idf, meaning substring frequency)
+
+
+Notes:
+- https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html shows how to get
+a matrix of features from a list of string samples, where the features are frequencies of n-grams (like "fk;").
+- https://datascience.stackexchange.com/questions/8542/appropriate-algorithm-for-string-not-document-classification
